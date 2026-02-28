@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRight, CalendarDays } from 'lucide-react'
 import { useStore } from '../store/useStore'
-import type { Context } from '../types'
+import type { Context, Task } from '../types'
 
 const contexts: { value: Context; label: string; color: string }[] = [
   { value: 'perso', label: 'Perso', color: 'border-violet-400/50 text-violet-300 bg-violet-500/15' },
@@ -9,16 +9,21 @@ const contexts: { value: Context; label: string; color: string }[] = [
   { value: 'urgent', label: 'Urgent', color: 'border-rose-400/50 text-rose-300 bg-rose-500/15' },
 ]
 
-export default function TaskInput() {
+type Props = { onAdd?: (task: Task) => void }
+
+export default function TaskInput({ onAdd }: Props) {
   const [title, setTitle] = useState('')
   const [context, setContext] = useState<Context>('perso')
   const [dueDate, setDueDate] = useState('')
   const [showDate, setShowDate] = useState(false)
   const addTask = useStore((s) => s.addTask)
+  
 
   const handleSubmit = () => {
     if (!title.trim()) return
     addTask(title.trim(), context, dueDate || null)
+    const newTask = useStore.getState().tasks[0]
+    onAdd?.(newTask)
     setTitle('')
     setDueDate('')
     setShowDate(false)
@@ -29,7 +34,6 @@ export default function TaskInput() {
       <p className="text-xs font-semibold text-white/60 uppercase tracking-[0.18em]">
         Qu'est-ce qui compte là, maintenant ?
       </p>
-
       <div className="flex items-center gap-3">
         <input
           type="text"
@@ -42,7 +46,6 @@ export default function TaskInput() {
         />
         <button
           onClick={() => setShowDate(!showDate)}
-          title="Ajouter une échéance"
           className={`p-2 rounded-xl transition-all ${showDate || dueDate
             ? 'text-indigo-300 bg-indigo-500/15'
             : 'text-white/30 hover:text-white/60 hover:bg-white/8'}`}
@@ -57,19 +60,15 @@ export default function TaskInput() {
           <ArrowRight size={16} />
         </button>
       </div>
-
       {showDate && (
-        <div className="animate-fade-in">
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            min={new Date().toISOString().slice(0, 10)}
-            className="w-full bg-white/6 border border-white/15 rounded-xl px-3 py-2 text-sm text-white/80 outline-none focus:border-indigo-400/50 transition-colors [color-scheme:dark]"
-          />
-        </div>
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          min={new Date().toISOString().slice(0, 10)}
+          className="w-full bg-white/6 border border-white/15 rounded-xl px-3 py-2 text-sm text-white/80 outline-none focus:border-indigo-400/50 transition-colors [color-scheme:dark]"
+        />
       )}
-
       <div className="flex gap-2 pt-1 border-t border-white/8">
         {contexts.map((c) => (
           <button

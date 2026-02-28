@@ -10,9 +10,10 @@ const DURATIONS = [
 type Props = {
   taskId: string
   autoStart?: boolean
+  onTimerChange?: () => void
 }
 
-export default function CandleTimer({ taskId, autoStart = false }: Props) {
+export default function CandleTimer({ taskId, autoStart = false, onTimerChange }: Props) {
   const { tasks, startTaskTimer, pauseTaskTimer, resumeTaskTimer, resetTaskTimer } = useStore()
   const [, setTick] = useState(0)
 
@@ -44,15 +45,18 @@ export default function CandleTimer({ taskId, autoStart = false }: Props) {
     }
   }, [autoStart])
 
+  const handleStart = () => {
+    liveElapsed === 0 ? startTaskTimer(taskId, task.timerDuration) : resumeTaskTimer(taskId)
+    setTimeout(() => onTimerChange?.(), 50)
+  }
+
   return (
     <div className="flex items-center gap-5 mt-4 p-3 rounded-xl bg-white/3 border border-white/8">
-
       <div className="flex flex-col items-center gap-1 flex-shrink-0">
         <div
           className="rounded-full transition-all duration-1000"
           style={{
-            width: glowSize,
-            height: glowSize,
+            width: glowSize, height: glowSize,
             background: task.timerRunning ? 'radial-gradient(circle, #fde68a, #f59e0b)' : '#3a3a4a',
             boxShadow: task.timerRunning ? `0 0 ${glowSize * 2}px ${glowSize}px rgba(245,158,11,0.35)` : 'none',
             opacity: task.timerRunning ? 1 : 0.25,
@@ -70,13 +74,12 @@ export default function CandleTimer({ taskId, autoStart = false }: Props) {
           />
         </div>
       </div>
-
       <div className="flex-1 space-y-2">
         <div className="flex gap-1.5">
           {DURATIONS.map((d) => (
             <button
               key={d.value}
-              onClick={() => resetTaskTimer(taskId, d.value)}
+              onClick={() => { resetTaskTimer(taskId, d.value); onTimerChange?.() }}
               disabled={task.timerRunning}
               className={`text-xs px-2 py-0.5 rounded-full border transition-all
                 ${task.timerDuration === d.value && !finished
@@ -87,38 +90,25 @@ export default function CandleTimer({ taskId, autoStart = false }: Props) {
             </button>
           ))}
         </div>
-
         <div className="text-2xl font-light tabular-nums tracking-tight text-white/70">
           {finished
             ? <span className="text-emerald-400 text-sm font-medium">Temps écoulé</span>
             : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
           }
         </div>
-
         <div className="flex gap-2">
           {!task.timerRunning && !finished && (
-            <button
-              onClick={() => liveElapsed === 0
-                ? startTaskTimer(taskId, task.timerDuration)
-                : resumeTaskTimer(taskId)}
-              className="text-xs px-3 py-1 rounded-lg bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 transition-all border border-amber-500/20"
-            >
+            <button onClick={handleStart} className="text-xs px-3 py-1 rounded-lg bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 border border-amber-500/20">
               {liveElapsed === 0 ? 'Démarrer' : 'Reprendre'}
             </button>
           )}
           {task.timerRunning && (
-            <button
-              onClick={() => pauseTaskTimer(taskId)}
-              className="text-xs px-3 py-1 rounded-lg bg-white/8 text-white/50 hover:bg-white/15 transition-all border border-white/10"
-            >
+            <button onClick={() => { pauseTaskTimer(taskId); onTimerChange?.() }} className="text-xs px-3 py-1 rounded-lg bg-white/8 text-white/50 hover:bg-white/15 border border-white/10">
               Pause
             </button>
           )}
           {(task.timerRunning || liveElapsed > 0) && (
-            <button
-              onClick={() => resetTaskTimer(taskId, task.timerDuration)}
-              className="text-xs px-3 py-1 rounded-lg bg-white/5 text-white/25 hover:text-white/40 hover:bg-white/10 transition-all border border-white/8"
-            >
+            <button onClick={() => { resetTaskTimer(taskId, task.timerDuration); onTimerChange?.() }} className="text-xs px-3 py-1 rounded-lg bg-white/5 text-white/25 hover:text-white/40 border border-white/8">
               Réinitialiser
             </button>
           )}

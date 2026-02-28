@@ -1,8 +1,14 @@
 import { useStore } from '../store/useStore'
 import TaskCard from './TaskCard'
 import { RotateCcw, Sparkles, AlertTriangle } from 'lucide-react'
+import type { Task } from '../types'
 
-export default function TaskList() {
+type Props = {
+  onTaskChange?: (task: Task) => void
+  onTaskDelete?: (id: string) => void
+}
+
+export default function TaskList({ onTaskChange, onTaskDelete }: Props) {
   const { tasks, resetAll } = useStore()
   const today = new Date().toISOString().slice(0, 10)
 
@@ -12,8 +18,6 @@ export default function TaskList() {
 
   return (
     <div className="space-y-6">
-
-      {/* Overdue */}
       {overdue.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -24,13 +28,19 @@ export default function TaskList() {
           </div>
           {overdue.map((t, i) => (
             <div key={t.id} className="animate-fade-up" style={{ animationDelay: `${i * 0.05}s` }}>
-              <TaskCard task={t} isFirst={i === 0} isLast={i === overdue.length - 1} totalActive={overdue.length} />
+              <TaskCard
+                task={t}
+                isFirst={i === 0}
+                isLast={i === overdue.length - 1}
+                totalActive={overdue.length}
+                onTaskChange={onTaskChange}
+                onTaskDelete={onTaskDelete}
+              />
             </div>
           ))}
         </div>
       )}
 
-      {/* Active */}
       <div className="space-y-2">
         {current.length === 0 && overdue.length === 0 && tasks.length === 0 && (
           <div className="text-center py-16 space-y-4">
@@ -49,7 +59,14 @@ export default function TaskList() {
         )}
         {current.map((t, i) => (
           <div key={t.id} className="animate-fade-up" style={{ animationDelay: `${i * 0.05}s` }}>
-            <TaskCard task={t} isFirst={i === 0} isLast={i === current.length - 1} totalActive={current.length} />
+            <TaskCard
+              task={t}
+              isFirst={i === 0}
+              isLast={i === current.length - 1}
+              totalActive={current.length}
+              onTaskChange={onTaskChange}
+              onTaskDelete={onTaskDelete}
+            />
           </div>
         ))}
       </div>

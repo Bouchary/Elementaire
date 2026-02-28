@@ -1,8 +1,14 @@
 import { Zap, RefreshCw, AlertTriangle } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import NotificationSettings from './NotificationSettings'
+import type { User } from '@supabase/supabase-js'
 
-export default function Header() {
+type Props = {
+  user: User
+  onSyncProfile: () => void
+}
+
+export default function Header({ onSyncProfile }: Props) {
   const elan = useStore((s) => s.elan)
   const tasks = useStore((s) => s.tasks)
   const resetCheckIn = useStore((s) => s.resetCheckIn)
@@ -37,7 +43,7 @@ export default function Header() {
               <RefreshCw size={15} />
             </button>
           )}
-          <NotificationSettings />
+          <NotificationSettings onSave={onSyncProfile} />
           <div className="flex items-center gap-2 bg-amber-400/15 border border-amber-400/30 px-4 py-2 rounded-full">
             <Zap size={14} className="text-amber-400" />
             <span className="text-base font-bold text-amber-300 tabular-nums">{elan}</span>

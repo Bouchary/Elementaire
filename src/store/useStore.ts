@@ -25,7 +25,7 @@ type Store = {
   sessionCount: number
   hasSeenOnboarding: boolean
   history: DayRecord[]
-  currentView: 'app' | 'stats' | 'history'
+  currentView: 'app' | 'stats' | 'history' | 'profile'
   urgencyMode: boolean
   checkIn: CheckIn | null
   checkInTime: string
@@ -51,7 +51,7 @@ type Store = {
   endSession: () => void
   setShowEndSession: (val: boolean) => void
   completeOnboarding: () => void
-  setCurrentView: (view: 'app' | 'stats' | 'history') => void
+  setCurrentView: (view: 'app' | 'stats' | 'history' | 'profile') => void
   setUrgencyMode: (val: boolean) => void
   submitCheckIn: (intention: string) => void
   skipCheckIn: () => void

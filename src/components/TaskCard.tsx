@@ -12,6 +12,8 @@ type Props = {
   isFirst?: boolean
   isLast?: boolean
   totalActive?: number
+  onTaskChange?: (task: Task) => void
+  onTaskDelete?: (id: string) => void
 }
 
 const contexts: { value: Context; label: string; color: string }[] = [
@@ -41,7 +43,7 @@ function DueDateBadge({ dueDate }: { dueDate: string }) {
   )
 }
 
-export default function TaskCard({ task, isFirst = false, isLast = false, totalActive = 1 }: Props) {
+export default function TaskCard({ task, isFirst = false, isLast = false, totalActive = 1, onTaskChange, onTaskDelete }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [justChecked, setJustChecked] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -59,27 +61,26 @@ export default function TaskCard({ task, isFirst = false, isLast = false, totalA
     if (!task.done) setJustChecked(true)
     setTimeout(() => setJustChecked(false), 600)
     toggleDone(task.id)
-  }
-
-  const handleEditStart = () => {
-    setEditTitle(task.title)
-    setEditContext(task.context)
-    setEditDueDate(task.dueDate ?? '')
-    setEditing(true)
+    setTimeout(() => onTaskChange?.(useStore.getState().tasks.find((t) => t.id === task.id)!), 50)
   }
 
   const handleEditSave = () => {
     if (editTitle.trim()) {
       editTask(task.id, editTitle.trim(), editContext, editDueDate || null)
+      setTimeout(() => onTaskChange?.(useStore.getState().tasks.find((t) => t.id === task.id)!), 50)
     }
     setEditing(false)
   }
 
-  const handleEditCancel = () => setEditing(false)
+  const handleDelete = () => {
+    deleteTask(task.id)
+    onTaskDelete?.(task.id)
+  }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleEditSave()
-    if (e.key === 'Escape') handleEditCancel()
+  const handleLaunch = () => {
+    launchTask(task.id)
+    setExpanded(true)
+    setTimeout(() => onTaskChange?.(useStore.getState().tasks.find((t) => t.id === task.id)!), 50)
   }
 
   return (
@@ -107,10 +108,7 @@ export default function TaskCard({ task, isFirst = false, isLast = false, totalA
           <button
             onClick={handleCheck}
             className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all
-              ${justChecked ? 'animate-check-pop' : ''}
-              ${task.done
-                ? 'border-emerald-400 bg-emerald-400'
-                : 'border-white/40 hover:border-emerald-400'}`}
+              ${task.done ? 'border-emerald-400 bg-emerald-400' : 'border-white/40 hover:border-emerald-400'}`}
           >
             {task.done && <Check size={10} className="text-black" strokeWidth={3} />}
           </button>
@@ -124,40 +122,32 @@ export default function TaskCard({ task, isFirst = false, isLast = false, totalA
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                onKeyDown={handleKeyDown}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleEditSave(); if (e.key === 'Escape') setEditing(false) }}
                 className="w-full bg-white/8 border border-white/20 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-indigo-400/60 transition-colors"
               />
               <input
                 type="date"
                 value={editDueDate}
                 onChange={(e) => setEditDueDate(e.target.value)}
-                className="w-full bg-white/6 border border-white/15 rounded-xl px-3 py-2 text-sm text-white/80 outline-none focus:border-indigo-400/50 transition-colors [color-scheme:dark]"
+                className="w-full bg-white/6 border border-white/15 rounded-xl px-3 py-2 text-sm text-white/80 outline-none [color-scheme:dark]"
               />
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
                 {contexts.map((c) => (
                   <button
                     key={c.value}
                     onClick={() => setEditContext(c.value)}
                     className={`text-xs px-3 py-1 rounded-full border font-medium transition-all
-                      ${editContext === c.value
-                        ? c.color
-                        : 'border-white/15 text-white/40 hover:text-white/65 hover:border-white/30'}`}
+                      ${editContext === c.value ? c.color : 'border-white/15 text-white/40 hover:text-white/65'}`}
                   >
                     {c.label}
                   </button>
                 ))}
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={handleEditSave}
-                  className="flex-1 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-semibold transition-all"
-                >
+                <button onClick={handleEditSave} className="flex-1 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-semibold">
                   Enregistrer
                 </button>
-                <button
-                  onClick={handleEditCancel}
-                  className="px-3 py-1.5 rounded-xl bg-white/8 hover:bg-white/15 text-white/50 hover:text-white text-xs transition-all"
-                >
+                <button onClick={() => setEditing(false)} className="px-3 py-1.5 rounded-xl bg-white/8 text-white/50 text-xs">
                   <X size={14} />
                 </button>
               </div>
@@ -165,9 +155,7 @@ export default function TaskCard({ task, isFirst = false, isLast = false, totalA
           ) : (
             <>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-sm transition-all ${task.done
-                  ? 'line-through text-white/40 font-normal'
-                  : 'text-white font-semibold'}`}>
+                <span className={`text-sm transition-all ${task.done ? 'line-through text-white/40' : 'text-white font-semibold'}`}>
                   {task.title}
                 </span>
                 <ElanBadge context={task.context} />
@@ -176,8 +164,8 @@ export default function TaskCard({ task, isFirst = false, isLast = false, totalA
               {task.launched && !task.done && expanded && (
                 <div className="animate-fade-up">
                   <StepSuggestions task={task} />
-                  <MicroSteps task={task} />
-                  <CandleTimer taskId={task.id} />
+                  <MicroSteps task={task} onStepChange={() => onTaskChange?.(useStore.getState().tasks.find((t) => t.id === task.id)!)} />
+                  <CandleTimer taskId={task.id} onTimerChange={() => onTaskChange?.(useStore.getState().tasks.find((t) => t.id === task.id)!)} />
                 </div>
               )}
             </>
@@ -185,68 +173,22 @@ export default function TaskCard({ task, isFirst = false, isLast = false, totalA
         </div>
 
         {!editing && (
-          <div className={`flex items-center gap-0.5 flex-shrink-0 transition-opacity duration-200
-            ${task.done ? 'opacity-30' : 'opacity-0 group-hover:opacity-100'}`}>
-
-            {/* Reorder */}
+          <div className={`flex items-center gap-0.5 flex-shrink-0 transition-opacity ${task.done ? 'opacity-30' : 'opacity-0 group-hover:opacity-100'}`}>
             {!task.done && totalActive > 1 && (
               <>
-                {!isFirst && (
-                  <button
-                    onClick={() => moveTaskUp(task.id)}
-                    className="p-1.5 rounded-lg text-white/35 hover:text-white/70 hover:bg-white/8 transition-all"
-                    title="Remonter"
-                  >
-                    <ArrowUp size={13} />
-                  </button>
-                )}
-                {!isLast && (
-                  <button
-                    onClick={() => moveTaskDown(task.id)}
-                    className="p-1.5 rounded-lg text-white/35 hover:text-white/70 hover:bg-white/8 transition-all"
-                    title="Descendre"
-                  >
-                    <ArrowDown size={13} />
-                  </button>
-                )}
+                {!isFirst && <button onClick={() => moveTaskUp(task.id)} className="p-1.5 rounded-lg text-white/35 hover:text-white/70 hover:bg-white/8"><ArrowUp size={13} /></button>}
+                {!isLast && <button onClick={() => moveTaskDown(task.id)} className="p-1.5 rounded-lg text-white/35 hover:text-white/70 hover:bg-white/8"><ArrowDown size={13} /></button>}
               </>
             )}
-
-            {!task.done && (
-              <button onClick={handleEditStart} className="p-1.5 rounded-lg text-white/50 hover:text-indigo-300 hover:bg-indigo-400/15 transition-all">
-                <Pencil size={14} />
-              </button>
-            )}
-            {!task.done && !task.launched && (
-              <button
-                onClick={() => { launchTask(task.id); setExpanded(true) }}
-                className="p-1.5 rounded-lg text-white/50 hover:text-amber-400 hover:bg-amber-400/15 transition-all"
-              >
-                <Rocket size={14} />
-              </button>
-            )}
+            {!task.done && <button onClick={() => { setEditTitle(task.title); setEditContext(task.context); setEditDueDate(task.dueDate ?? ''); setEditing(true) }} className="p-1.5 rounded-lg text-white/50 hover:text-indigo-300 hover:bg-indigo-400/15"><Pencil size={14} /></button>}
+            {!task.done && !task.launched && <button onClick={handleLaunch} className="p-1.5 rounded-lg text-white/50 hover:text-amber-400 hover:bg-amber-400/15"><Rocket size={14} /></button>}
             {task.launched && !task.done && (
               <>
-                <button
-                  onClick={() => setFocusTask(task.id)}
-                  className="p-1.5 rounded-lg text-white/50 hover:text-violet-400 hover:bg-violet-400/15 transition-all"
-                >
-                  <Maximize2 size={14} />
-                </button>
-                <button
-                  onClick={() => setExpanded(!expanded)}
-                  className="p-1.5 rounded-lg text-white/50 hover:text-white transition-all"
-                >
-                  {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                </button>
+                <button onClick={() => setFocusTask(task.id)} className="p-1.5 rounded-lg text-white/50 hover:text-violet-400 hover:bg-violet-400/15"><Maximize2 size={14} /></button>
+                <button onClick={() => setExpanded(!expanded)} className="p-1.5 rounded-lg text-white/50 hover:text-white">{expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button>
               </>
             )}
-            <button
-              onClick={() => deleteTask(task.id)}
-              className="p-1.5 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-400/15 transition-all"
-            >
-              <Trash2 size={14} />
-            </button>
+            <button onClick={handleDelete} className="p-1.5 rounded-lg text-white/40 hover:text-rose-400 hover:bg-rose-400/15"><Trash2 size={14} /></button>
           </div>
         )}
       </div>

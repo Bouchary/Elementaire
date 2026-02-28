@@ -9,7 +9,9 @@ const DELAYS = [
   { label: '2 heures', value: 120 },
 ]
 
-export default function NotificationSettings() {
+type Props = { onSave?: () => void }
+
+export default function NotificationSettings({ onSave }: Props) {
   const [open, setOpen] = useState(false)
   const { notifEnabled, notifDelay, checkInTime, setNotifEnabled, setNotifDelay, setCheckInTime } = useStore()
 
@@ -19,6 +21,7 @@ export default function NotificationSettings() {
       if (permission !== 'granted') return
     }
     setNotifEnabled(!notifEnabled)
+    onSave?.()
   }
 
   return (
@@ -28,7 +31,6 @@ export default function NotificationSettings() {
         className={`p-2 rounded-xl transition-all ${notifEnabled
           ? 'text-amber-400 bg-amber-400/10'
           : 'text-white/50 hover:text-white/80 hover:bg-white/8'}`}
-        title="Notifications"
       >
         {notifEnabled ? <Bell size={16} /> : <BellOff size={16} />}
       </button>
@@ -42,7 +44,6 @@ export default function NotificationSettings() {
             </button>
           </div>
 
-          {/* Toggle */}
           <div className="flex items-center justify-between">
             <span className="text-sm text-white/80">Activer</span>
             <button
@@ -60,25 +61,22 @@ export default function NotificationSettings() {
 
           {notifEnabled && (
             <>
-              {/* Check-in time */}
               <div className="space-y-1.5">
                 <span className="text-xs text-white/50">Check-in du matin</span>
                 <input
                   type="time"
                   value={checkInTime}
-                  onChange={(e) => setCheckInTime(e.target.value)}
+                  onChange={(e) => { setCheckInTime(e.target.value); onSave?.() }}
                   className="w-full bg-white/6 border border-white/15 rounded-xl px-3 py-2 text-sm text-white/80 outline-none focus:border-indigo-400/50 transition-colors [color-scheme:dark]"
                 />
               </div>
-
-              {/* Reminder delay */}
               <div className="space-y-2">
                 <span className="text-xs text-white/50">Rappel si inactif depuis</span>
                 <div className="grid grid-cols-2 gap-1.5">
                   {DELAYS.map((d) => (
                     <button
                       key={d.value}
-                      onClick={() => setNotifDelay(d.value)}
+                      onClick={() => { setNotifDelay(d.value); onSave?.() }}
                       className={`text-xs px-2 py-1.5 rounded-lg border transition-all
                         ${notifDelay === d.value
                           ? 'border-amber-500/40 text-amber-300 bg-amber-500/10'
