@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, CalendarDays } from 'lucide-react'
+import { ArrowRight, CalendarDays, FolderOpen, X } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import type { Context, Task } from '../types'
 
@@ -16,18 +16,23 @@ export default function TaskInput({ onAdd }: Props) {
   const [context, setContext] = useState<Context>('perso')
   const [dueDate, setDueDate] = useState('')
   const [showDate, setShowDate] = useState(false)
-  const addTask = useStore((s) => s.addTask)
-  
+  const [projectId, setProjectId] = useState<string | null>(null)
+  const [showProjects, setShowProjects] = useState(false)
+  const { addTask, projects } = useStore()
 
   const handleSubmit = () => {
     if (!title.trim()) return
-    addTask(title.trim(), context, dueDate || null)
+    addTask(title.trim(), context, dueDate || null, projectId)
     const newTask = useStore.getState().tasks[0]
     onAdd?.(newTask)
     setTitle('')
     setDueDate('')
     setShowDate(false)
+    setProjectId(null)
+    setShowProjects(false)
   }
+
+  const selectedProject = projects.find((p) => p.id === projectId)
 
   return (
     <div className="bg-white/8 border border-white/20 rounded-2xl p-5 space-y-4 shadow-xl shadow-black/30">
@@ -47,11 +52,19 @@ export default function TaskInput({ onAdd }: Props) {
         <button
           onClick={() => setShowDate(!showDate)}
           className={`p-2 rounded-xl transition-all ${showDate || dueDate
-            ? 'text-indigo-300 bg-indigo-500/15'
-            : 'text-white/30 hover:text-white/60 hover:bg-white/8'}`}
+            ? 'text-indigo-300 bg-indigo-500/15' : 'text-white/30 hover:text-white/60 hover:bg-white/8'}`}
         >
           <CalendarDays size={16} />
         </button>
+        {projects.length > 0 && (
+          <button
+            onClick={() => setShowProjects(!showProjects)}
+            className={`p-2 rounded-xl transition-all ${projectId
+              ? 'text-indigo-300 bg-indigo-500/15' : 'text-white/30 hover:text-white/60 hover:bg-white/8'}`}
+          >
+            <FolderOpen size={16} />
+          </button>
+        )}
         <button
           onClick={handleSubmit}
           disabled={!title.trim()}
@@ -60,6 +73,7 @@ export default function TaskInput({ onAdd }: Props) {
           <ArrowRight size={16} />
         </button>
       </div>
+
       {showDate && (
         <input
           type="date"
@@ -69,15 +83,46 @@ export default function TaskInput({ onAdd }: Props) {
           className="w-full bg-white/6 border border-white/15 rounded-xl px-3 py-2 text-sm text-white/80 outline-none focus:border-indigo-400/50 transition-colors [color-scheme:dark]"
         />
       )}
+
+      {showProjects && (
+        <div className="space-y-1.5">
+          <p className="text-xs text-white/35 font-medium">Rattacher à un projet</p>
+          <div className="flex flex-wrap gap-2">
+            {projects.filter((p) => !p.done).map((p) => (
+              <button
+                key={p.id}
+                onClick={() => { setProjectId(projectId === p.id ? null : p.id); setShowProjects(false) }}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all"
+                style={projectId === p.id
+                  ? { borderColor: `${p.color}60`, color: p.color, background: `${p.color}15` }
+                  : { borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.45)' }
+                }
+              >
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: p.color }} />
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {selectedProject && !showProjects && (
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: selectedProject.color }} />
+          <span className="text-xs" style={{ color: selectedProject.color }}>{selectedProject.name}</span>
+          <button onClick={() => setProjectId(null)} className="text-white/25 hover:text-white/55 transition-colors ml-1">
+            <X size={12} />
+          </button>
+        </div>
+      )}
+
       <div className="flex gap-2 pt-1 border-t border-white/8">
         {contexts.map((c) => (
           <button
             key={c.value}
             onClick={() => setContext(c.value)}
             className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-all
-              ${context === c.value
-                ? c.color
-                : 'border-white/15 text-white/45 hover:text-white/70 hover:border-white/30'}`}
+              ${context === c.value ? c.color : 'border-white/15 text-white/45 hover:text-white/70 hover:border-white/30'}`}
           >
             {c.label}
           </button>

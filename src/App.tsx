@@ -13,6 +13,8 @@ import EndSessionScreen from './components/EndSessionScreen'
 import HistoryPage from './components/HistoryPage'
 import AuthScreen from './components/AuthScreen'
 import ProfilePage from './components/ProfilePage'
+import ProjectsPage from './components/ProjectsPage'
+import ProjectDetail from './components/ProjectDetail'
 import { useStore } from './store/useStore'
 import { useNotifications } from './hooks/useNotifications'
 import { useCheckInNotification } from './hooks/useCheckInNotification'
@@ -28,7 +30,7 @@ export default function App() {
   } = useStore()
 
   const { user, loading } = useAuth()
-  const { syncTask, deleteTask: syncDelete, syncHistory, syncProfile } = useSync(user)
+  const { syncTask, deleteTask: syncDelete, syncProject, deleteProject: syncDeleteProject, syncHistory, syncProfile } = useSync(user)
 
   const focusTask = tasks.find((t) => t.id === focusTaskId)
   const todayKey = new Date().toISOString().slice(0, 10)
@@ -52,7 +54,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0d0d1a] relative overflow-hidden">
-
       <div className="pointer-events-none fixed inset-0 z-0">
         <div
           className="animate-pulse-glow absolute top-[-10%] left-[15%] w-[550px] h-[550px] rounded-full"
@@ -82,13 +83,25 @@ export default function App() {
               </div>
             )}
 
+            {currentView === 'projects' && (
+              <ProjectsPage
+                userId={user.id}
+                onProjectChange={(project) => syncProject(project, user.id)}
+                onProjectDelete={(id) => syncDeleteProject(id)}
+              />
+            )}
+
+            {currentView === 'project-detail' && (
+              <ProjectDetail
+                onTaskChange={(task) => syncTask(task, user.id)}
+                onTaskDelete={(id) => syncDelete(id)}
+              />
+            )}
+
             {currentView === 'history' && <HistoryPage />}
             {currentView === 'stats' && <StatsPage />}
             {currentView === 'profile' && (
-              <ProfilePage
-                user={user}
-                onSyncProfile={() => syncProfile(user.id)}
-              />
+              <ProfilePage user={user} onSyncProfile={() => syncProfile(user.id)} />
             )}
           </div>
         </div>

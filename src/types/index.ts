@@ -20,4 +20,14 @@ export type Task = {
   timerElapsed: number
   timerDuration: number
   timerRunning: boolean
+  projectId: string | null
+}
+
+export type Project = {
+  id: string
+  name: string
+  description: string
+  color: string
+  done: boolean
+  createdAt: number
 }

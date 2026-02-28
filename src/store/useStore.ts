@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Task, Context, MicroStep } from '../types'
+import type { Task, Context, MicroStep, Project } from '../types'
 
 type DayRecord = {
   date: string
@@ -16,6 +16,7 @@ type CheckIn = {
 
 type Store = {
   tasks: Task[]
+  projects: Project[]
   elan: number
   focusTaskId: string | null
   notifEnabled: boolean
@@ -25,13 +26,14 @@ type Store = {
   sessionCount: number
   hasSeenOnboarding: boolean
   history: DayRecord[]
-  currentView: 'app' | 'stats' | 'history' | 'profile'
+  currentView: 'app' | 'stats' | 'history' | 'profile' | 'projects' | 'project-detail'
+  activeProjectId: string | null
   urgencyMode: boolean
   checkIn: CheckIn | null
   checkInTime: string
   showEndSession: boolean
-  addTask: (title: string, context: Context, dueDate?: string | null) => void
-  editTask: (taskId: string, title: string, context: Context, dueDate?: string | null) => void
+  addTask: (title: string, context: Context, dueDate?: string | null, projectId?: string | null) => Task
+  editTask: (taskId: string, title: string, context: Context, dueDate?: string | null, projectId?: string | null) => void
   toggleDone: (taskId: string) => void
   deleteTask: (taskId: string) => void
   launchTask: (taskId: string) => void
@@ -44,6 +46,11 @@ type Store = {
   resetTaskTimer: (taskId: string, duration: number) => void
   moveTaskUp: (taskId: string) => void
   moveTaskDown: (taskId: string) => void
+  addProject: (name: string, description: string, color: string) => Project
+  editProject: (projectId: string, name: string, description: string, color: string) => void
+  deleteProject: (projectId: string) => void
+  toggleProjectDone: (projectId: string) => void
+  setActiveProjectId: (id: string | null) => void
   setFocusTask: (id: string | null) => void
   setNotifEnabled: (val: boolean) => void
   setNotifDelay: (val: number) => void
@@ -51,7 +58,7 @@ type Store = {
   endSession: () => void
   setShowEndSession: (val: boolean) => void
   completeOnboarding: () => void
-  setCurrentView: (view: 'app' | 'stats' | 'history' | 'profile') => void
+  setCurrentView: (view: Store['currentView']) => void
   setUrgencyMode: (val: boolean) => void
   submitCheckIn: (intention: string) => void
   skipCheckIn: () => void
@@ -68,9 +75,7 @@ const recordElan = (history: DayRecord[], amount: number, tasksDone: number): Da
   const existing = history.find((d) => d.date === key)
   if (existing) {
     return history.map((d) =>
-      d.date === key
-        ? { ...d, elan: d.elan + amount, tasksDone: d.tasksDone + tasksDone }
-        : d
+      d.date === key ? { ...d, elan: d.elan + amount, tasksDone: d.tasksDone + tasksDone } : d
     )
   }
   return [...history, { date: key, elan: amount, tasksDone }]
@@ -88,6 +93,7 @@ export const useStore = create<Store>()(
   persist(
     (set, get) => ({
       tasks: [],
+      projects: [],
       elan: 0,
       focusTaskId: null,
       notifEnabled: false,
@@ -98,12 +104,13 @@ export const useStore = create<Store>()(
       hasSeenOnboarding: false,
       history: [],
       currentView: 'app',
+      activeProjectId: null,
       urgencyMode: false,
       checkIn: null,
       checkInTime: '08:00',
       showEndSession: false,
 
-      addTask: (title, context, dueDate = null) => {
+      addTask: (title, context, dueDate = null, projectId = null) => {
         const newTask: Task = {
           id: generateId(),
           title,
@@ -113,15 +120,19 @@ export const useStore = create<Store>()(
           dueDate: dueDate ?? null,
           microSteps: [],
           launched: false,
+          projectId: projectId ?? null,
           ...defaultTaskTimer,
         }
         set((s) => ({ tasks: [newTask, ...s.tasks] }))
+        return newTask
       },
 
-      editTask: (taskId, title, context, dueDate = null) => {
+      editTask: (taskId, title, context, dueDate = null, projectId = null) => {
         set((s) => ({
           tasks: s.tasks.map((t) =>
-            t.id === taskId ? { ...t, title, context, dueDate: dueDate ?? null } : t
+            t.id === taskId
+              ? { ...t, title, context, dueDate: dueDate ?? null, projectId: projectId ?? null }
+              : t
           ),
         }))
       },
@@ -149,9 +160,7 @@ export const useStore = create<Store>()(
 
       launchTask: (taskId) => {
         set((s) => ({
-          tasks: s.tasks.map((t) =>
-            t.id === taskId ? { ...t, launched: true } : t
-          ),
+          tasks: s.tasks.map((t) => t.id === taskId ? { ...t, launched: true } : t),
         }))
       },
 
@@ -159,9 +168,7 @@ export const useStore = create<Store>()(
         const step: MicroStep = { id: generateId(), label, done: false }
         set((s) => ({
           tasks: s.tasks.map((t) =>
-            t.id === taskId
-              ? { ...t, microSteps: [...t.microSteps, step] }
-              : t
+            t.id === taskId ? { ...t, microSteps: [...t.microSteps, step] } : t
           ),
         }))
       },
@@ -170,12 +177,7 @@ export const useStore = create<Store>()(
         set((s) => ({
           tasks: s.tasks.map((t) =>
             t.id === taskId
-              ? {
-                  ...t,
-                  microSteps: t.microSteps.map((ms) =>
-                    ms.id === stepId ? { ...ms, done: !ms.done } : ms
-                  ),
-                }
+              ? { ...t, microSteps: t.microSteps.map((ms) => ms.id === stepId ? { ...ms, done: !ms.done } : ms) }
               : t
           ),
         }))
@@ -208,8 +210,7 @@ export const useStore = create<Store>()(
               ? {
                   ...t,
                   timerRunning: false,
-                  timerElapsed: t.timerElapsed + (t.timerStartedAt
-                    ? Math.floor((Date.now() - t.timerStartedAt) / 1000) : 0),
+                  timerElapsed: t.timerElapsed + (t.timerStartedAt ? Math.floor((Date.now() - t.timerStartedAt) / 1000) : 0),
                   timerStartedAt: null,
                 }
               : t
@@ -220,9 +221,7 @@ export const useStore = create<Store>()(
       resumeTaskTimer: (taskId) => {
         set((s) => ({
           tasks: s.tasks.map((t) =>
-            t.id === taskId
-              ? { ...t, timerRunning: true, timerStartedAt: Date.now() }
-              : t
+            t.id === taskId ? { ...t, timerRunning: true, timerStartedAt: Date.now() } : t
           ),
         }))
       },
@@ -261,6 +260,45 @@ export const useStore = create<Store>()(
         })
       },
 
+      addProject: (name, description, color) => {
+        const newProject: Project = {
+          id: generateId(),
+          name,
+          description,
+          color,
+          done: false,
+          createdAt: Date.now(),
+        }
+        set((s) => ({ projects: [newProject, ...s.projects] }))
+        return newProject
+      },
+
+      editProject: (projectId, name, description, color) => {
+        set((s) => ({
+          projects: s.projects.map((p) =>
+            p.id === projectId ? { ...p, name, description, color } : p
+          ),
+        }))
+      },
+
+      deleteProject: (projectId) => {
+        set((s) => ({
+          projects: s.projects.filter((p) => p.id !== projectId),
+          tasks: s.tasks.map((t) =>
+            t.projectId === projectId ? { ...t, projectId: null } : t
+          ),
+        }))
+      },
+
+      toggleProjectDone: (projectId) => {
+        set((s) => ({
+          projects: s.projects.map((p) =>
+            p.id === projectId ? { ...p, done: !p.done } : p
+          ),
+        }))
+      },
+
+      setActiveProjectId: (id) => set({ activeProjectId: id }),
       setFocusTask: (id) => set({ focusTaskId: id }),
       setNotifEnabled: (val) => set({ notifEnabled: val }),
       setNotifDelay: (val) => set({ notifDelay: val }),
@@ -291,23 +329,21 @@ export const useStore = create<Store>()(
             dueDate: today,
             microSteps: [],
             launched: false,
+            projectId: null,
             ...defaultTaskTimer,
           }
           set((s) => ({ tasks: [newTask, ...s.tasks] }))
         }
       },
 
-      skipCheckIn: () => {
-        set({ checkIn: { date: todayKey(), intention: '', done: true } })
-      },
-
+      skipCheckIn: () => set({ checkIn: { date: todayKey(), intention: '', done: true } }),
       resetCheckIn: () => set({ checkIn: null }),
-
       setCheckInTime: (time) => set({ checkInTime: time }),
 
       resetAll: () =>
         set({
           tasks: [],
+          projects: [],
           elan: 0,
           focusTaskId: null,
           sessionActive: false,
@@ -317,6 +353,7 @@ export const useStore = create<Store>()(
           urgencyMode: false,
           checkIn: null,
           showEndSession: false,
+          activeProjectId: null,
         }),
     }),
     { name: 'elementaire-storage' }
