@@ -35,7 +35,6 @@
       overflow-x: hidden;
     }
 
-    /* Orbs */
     .orb {
       position: fixed;
       border-radius: 50%;
@@ -59,7 +58,6 @@
       50% { opacity: 1; transform: scale(1.05); }
     }
 
-    /* Layout */
     .container {
       position: relative;
       z-index: 1;
@@ -68,7 +66,6 @@
       padding: 0 24px;
     }
 
-    /* Nav */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -97,12 +94,8 @@
       text-decoration: none;
       transition: all 0.2s;
     }
-    .nav-cta:hover {
-      background: var(--indigo-dim);
-      border-color: var(--indigo);
-    }
+    .nav-cta:hover { background: var(--indigo-dim); border-color: var(--indigo); }
 
-    /* Hero */
     .hero {
       padding: 160px 0 100px;
       text-align: center;
@@ -135,10 +128,7 @@
       color: var(--text);
       margin-bottom: 24px;
     }
-    .hero h1 em {
-      font-style: italic;
-      color: rgba(232,232,242,0.55);
-    }
+    .hero h1 em { font-style: italic; color: rgba(232,232,242,0.55); }
     .hero-sub {
       font-size: 1.1rem;
       font-weight: 300;
@@ -148,15 +138,12 @@
       margin: 0 auto 48px;
     }
 
-    /* Divider */
     .divider {
-      width: 1px;
-      height: 60px;
+      width: 1px; height: 60px;
       background: linear-gradient(to bottom, transparent, var(--border), transparent);
       margin: 0 auto;
     }
 
-    /* Section */
     section { padding: 80px 0; }
 
     .section-label {
@@ -168,11 +155,7 @@
       margin-bottom: 32px;
     }
 
-    /* Problem */
-    .problem-list {
-      list-style: none;
-      space-y: 16px;
-    }
+    .problem-list { list-style: none; }
     .problem-item {
       display: flex;
       align-items: flex-start;
@@ -183,10 +166,7 @@
       transform: translateY(16px);
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    .problem-item.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .problem-item.visible { opacity: 1; transform: translateY(0); }
     .problem-item:last-child { border-bottom: none; }
     .problem-dot {
       width: 6px; height: 6px;
@@ -195,18 +175,9 @@
       flex-shrink: 0;
       margin-top: 9px;
     }
-    .problem-text {
-      font-size: 1.05rem;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-    .problem-text strong {
-      color: var(--text);
-      font-weight: 400;
-    }
+    .problem-text { font-size: 1.05rem; font-weight: 300; color: var(--muted); line-height: 1.6; }
+    .problem-text strong { color: var(--text); font-weight: 400; }
 
-    /* Solution */
     .solution-intro {
       font-family: 'DM Serif Display', serif;
       font-size: clamp(1.6rem, 4vw, 2.4rem);
@@ -215,21 +186,9 @@
       color: var(--text);
       margin-bottom: 24px;
     }
-    .solution-body {
-      font-size: 1rem;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.8;
-      margin-bottom: 16px;
-    }
+    .solution-body { font-size: 1rem; font-weight: 300; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
 
-    /* Features */
-    .features {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 2px;
-      margin-top: 16px;
-    }
+    .features { display: grid; grid-template-columns: 1fr; gap: 2px; margin-top: 16px; }
     .feature {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -242,37 +201,12 @@
       transform: translateY(12px);
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
-    .feature.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .feature:hover {
-      border-color: rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.04);
-    }
-    .feature-icon {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 1rem;
-    }
-    .feature-title {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-    .feature-desc {
-      font-size: 0.88rem;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .feature.visible { opacity: 1; transform: translateY(0); }
+    .feature:hover { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); }
+    .feature-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+    .feature-title { font-size: 0.95rem; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .feature-desc { font-size: 0.88rem; font-weight: 300; color: var(--muted); line-height: 1.6; }
 
-    /* Quote */
     .quote-block {
       border-left: 2px solid var(--indigo);
       padding: 24px 28px;
@@ -280,46 +214,19 @@
       border-radius: 0 16px 16px 0;
       margin: 48px 0;
     }
-    .quote-text {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.3rem;
-      font-style: italic;
-      color: var(--text);
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-    .quote-attr {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
+    .quote-text { font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-style: italic; color: var(--text); line-height: 1.5; margin-bottom: 12px; }
+    .quote-attr { font-size: 0.8rem; color: var(--muted); }
 
-    /* Waitlist */
     .waitlist-box {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 24px;
-      padding: 40px;
+      padding: 48px 40px;
       text-align: center;
     }
-    .waitlist-box h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2rem;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
-    }
-    .waitlist-box p {
-      font-size: 0.95rem;
-      font-weight: 300;
-      color: var(--muted);
-      margin-bottom: 32px;
-      line-height: 1.7;
-    }
-    .waitlist-form {
-      display: flex;
-      gap: 10px;
-      max-width: 420px;
-      margin: 0 auto;
-    }
+    .waitlist-box h2 { font-family: 'DM Serif Display', serif; font-size: 2rem; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .waitlist-box > p { font-size: 0.95rem; font-weight: 300; color: var(--muted); margin-bottom: 32px; line-height: 1.7; }
+    .waitlist-form { display: flex; gap: 10px; max-width: 420px; margin: 0 auto; }
     .waitlist-input {
       flex: 1;
       background: rgba(255,255,255,0.06);
@@ -347,73 +254,50 @@
       transition: all 0.2s;
       white-space: nowrap;
     }
-    .waitlist-btn:hover { background: #818cf8; transform: translateY(-1px); }
-    .waitlist-btn:active { transform: translateY(0); }
-    .waitlist-note {
-      font-size: 0.75rem;
-      color: var(--faint);
-      margin-top: 16px;
-    }
-    .waitlist-success {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
+    .waitlist-btn:hover:not(:disabled) { background: #818cf8; transform: translateY(-1px); }
+    .waitlist-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .waitlist-note { font-size: 0.75rem; color: var(--faint); margin-top: 16px; }
+    .waitlist-success { display: none; flex-direction: column; align-items: center; gap: 12px; }
     .waitlist-success.show { display: flex; }
     .success-icon {
-      width: 48px; height: 48px;
+      width: 52px; height: 52px;
       border-radius: 50%;
       background: rgba(52,211,153,0.15);
       border: 1px solid rgba(52,211,153,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
     }
-    .success-text {
-      font-size: 1rem;
-      color: var(--emerald);
-      font-weight: 500;
-    }
-    .success-sub {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
+    .success-text { font-size: 1.1rem; color: var(--emerald); font-weight: 500; }
+    .success-sub { font-size: 0.85rem; color: var(--muted); }
 
-    /* Footer */
-    footer {
-      padding: 48px 0;
-      text-align: center;
-      border-top: 1px solid var(--border);
-    }
-    .footer-logo {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.1rem;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-    .footer-tagline {
+    footer { padding: 48px 0; text-align: center; border-top: 1px solid var(--border); }
+    .footer-logo { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--muted); margin-bottom: 12px; }
+    .footer-tagline { font-size: 0.8rem; color: var(--faint); }
+    .footer-link {
+      display: inline-block;
+      margin-top: 16px;
       font-size: 0.8rem;
-      color: var(--faint);
+      color: var(--indigo);
+      text-decoration: none;
+      border: 1px solid rgba(99,102,241,0.3);
+      padding: 8px 18px;
+      border-radius: 100px;
+      transition: all 0.2s;
     }
+    .footer-link:hover { background: var(--indigo-dim); }
 
-    /* Animations */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .hero > * {
-      animation: fadeUp 0.7s ease both;
-    }
+    .hero > * { animation: fadeUp 0.7s ease both; }
     .hero-tag { animation-delay: 0.1s; }
     .hero h1 { animation-delay: 0.2s; }
     .hero-sub { animation-delay: 0.35s; }
-    .hero .waitlist-form { animation-delay: 0.5s; }
 
     @media (max-width: 520px) {
       .waitlist-form { flex-direction: column; }
-      .waitlist-box { padding: 28px 20px; }
+      .waitlist-box { padding: 32px 20px; }
       .hero { padding: 130px 0 80px; }
     }
   </style>
@@ -423,13 +307,11 @@
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
-  <!-- Nav -->
   <nav>
     <div class="nav-logo">Élémentaire</div>
     <a href="#waitlist" class="nav-cta">Rejoindre la liste</a>
   </nav>
 
-  <!-- Hero -->
   <div class="container">
     <section class="hero">
       <div class="hero-tag">Bientôt disponible</div>
@@ -442,7 +324,6 @@
 
     <div class="divider"></div>
 
-    <!-- Problem -->
     <section>
       <div class="section-label">Ce que tu connais peut-être</div>
       <ul class="problem-list">
@@ -467,7 +348,6 @@
 
     <div class="divider"></div>
 
-    <!-- Solution -->
     <section>
       <div class="section-label">Ce qu'Élémentaire propose</div>
       <p class="solution-intro">
@@ -481,14 +361,12 @@
         Et si tu ne sais pas comment commencer, l'app te propose le premier geste.
         Concret. Réalisable en cinq minutes. Juste assez pour démarrer.
       </p>
-
       <div class="quote-block">
         <p class="quote-text">"Le plus dur, ce n'est pas de finir. C'est de commencer."</p>
         <p class="quote-attr">Ce que l'app a été conçue pour résoudre.</p>
       </div>
     </section>
 
-    <!-- Features -->
     <section>
       <div class="section-label">Ce qui est différent</div>
       <div class="features">
@@ -539,7 +417,6 @@
 
     <div class="divider"></div>
 
-    <!-- Waitlist -->
     <section id="waitlist" style="padding-bottom: 100px;">
       <div class="waitlist-box">
         <h2>Être parmi les premiers</h2>
@@ -556,7 +433,7 @@
               id="email-input"
               placeholder="ton@email.com"
             />
-            <button class="waitlist-btn" onclick="handleSubmit()">
+            <button class="waitlist-btn" id="submit-btn" onclick="handleSubmit()">
               Je rejoins
             </button>
           </div>
@@ -572,22 +449,20 @@
     </section>
   </div>
 
-  <!-- Footer -->
   <footer>
     <div class="container">
       <div class="footer-logo">Élémentaire</div>
       <p class="footer-tagline">Un pas. Puis le suivant.</p>
+      <a href="https://elementaire.vercel.app" class="footer-link">Accéder à l'app →</a>
     </div>
   </footer>
 
   <script>
-    // Intersection observer pour animations
+    // Animations au scroll
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, i) => {
         if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('visible')
-          }, i * 80)
+          setTimeout(() => entry.target.classList.add('visible'), i * 80)
           observer.unobserve(entry.target)
         }
       })
@@ -595,20 +470,42 @@
 
     document.querySelectorAll('.problem-item, .feature').forEach(el => observer.observe(el))
 
-    // Waitlist submit
-    function handleSubmit() {
+    // Waitlist
+    async function handleSubmit() {
       const email = document.getElementById('email-input').value
+      const btn = document.getElementById('submit-btn')
+
       if (!email || !email.includes('@')) {
         document.getElementById('email-input').focus()
         return
       }
-      document.getElementById('form-container').style.display = 'none'
-      document.getElementById('success-msg').classList.add('show')
-      // Ici : intégrer un service comme Mailchimp, Brevo, Supabase, etc.
-      console.log('Email inscrit :', email)
+
+      btn.textContent = 'Envoi...'
+      btn.disabled = true
+
+      try {
+        const res = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        })
+        const data = await res.json()
+
+        if (res.ok) {
+          document.getElementById('form-container').style.display = 'none'
+          document.getElementById('success-msg').classList.add('show')
+        } else {
+          btn.textContent = 'Je rejoins'
+          btn.disabled = false
+          alert(data.error ?? 'Une erreur est survenue, réessaie.')
+        }
+      } catch {
+        btn.textContent = 'Je rejoins'
+        btn.disabled = false
+        alert('Une erreur est survenue, réessaie.')
+      }
     }
 
-    // Enter key
     document.getElementById('email-input').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleSubmit()
     })
